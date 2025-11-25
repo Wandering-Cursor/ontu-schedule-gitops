@@ -1,0 +1,59 @@
+# Sealed Secrets Controller configuration
+# This is a wrapper chart that deploys the official Bitnami Sealed Secrets Helm chart
+
+sealed-secrets:
+  # Controller configuration
+  fullnameOverride: sealed-secrets-controller
+  
+  # Namespace where the controller will be deployed
+  namespace: sealed-secrets
+  
+  # Command line flags
+  commandArgs:
+    - "--update-status"
+  
+  # RBAC configuration
+  rbac:
+    create: true
+    pspEnabled: false
+  
+  # ServiceAccount
+  serviceAccount:
+    create: true
+    name: sealed-secrets-controller
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 65534
+  
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1001
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  
+  # Resources
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 8080
+  
+  # Metrics
+  metrics:
+    serviceMonitor:
+      enabled: false
+    dashboards:
+      create: false

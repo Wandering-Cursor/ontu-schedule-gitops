@@ -1,0 +1,55 @@
+.
+├── apps
+│   ├── ontu-schedule-bot-admin
+│   │   ├── templates
+│   │   ├── Chart.yaml
+│   │   └── values.yaml
+│   ├── templates
+│   │   ├── tests
+│   │   ├── deployment.yaml
+│   │   ├── _helpers.tpl
+│   │   ├── hpa.yaml
+│   │   ├── httproute.yaml
+│   │   ├── ingress.yaml
+│   │   ├── NOTES.txt
+│   │   ├── serviceaccount.yaml
+│   │   └── service.yaml
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── values.yaml.old
+├── argocd
+│   ├── applications
+│   │   ├── ontu-schedule-bot-admin-dev.yaml
+│   │   ├── ontu-schedule-bot-admin-prod.yaml
+│   │   ├── ontu-schedule-bot-admin-staging.yaml
+│   │   └── sealed-secrets.yaml
+│   ├── bootstrap
+│   │   └── root-app.yaml
+│   └── projects
+│       ├── default-project.yaml
+│       └── ontu-schedule-project.yaml
+├── docs
+│   ├── ARCHITECTURE.md
+│   └── GHCR_IMAGES.md
+├── environments
+│   ├── dev
+│   │   └── ontu-schedule-bot-admin-values.yaml
+│   ├── prod
+│   │   └── ontu-schedule-bot-admin-values.yaml
+│   └── staging
+│       └── ontu-schedule-bot-admin-values.yaml
+├── infrastructure
+│   └── sealed-secrets
+│       ├── Chart.lock
+│       ├── Chart.yaml
+│       └── values.yaml
+├── scripts
+│   ├── create-app.sh
+│   └── seal-secret.sh
+├── IMPLEMENTATION_SUMMARY.md
+├── install.sh
+├── QUICKSTART.md
+├── README.md
+└── repo-structure.txt
+
+17 directories, 35 files

@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ontu-schedule-bot-admin-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: ontu-schedule
+  
+  source:
+    repoURL: https://github.com/Wandering-Cursor/ontu-schedule-gitops.git
+    targetRevision: HEAD
+    path: apps/ontu-schedule-bot-admin
+    helm:
+      releaseName: ontu-schedule-bot-admin
+      valueFiles:
+        - ../../environments/prod/ontu-schedule-bot-admin-values.yaml
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ontu-schedule-prod
+  
+  syncPolicy:
+    # Manual sync for production - require explicit approval
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

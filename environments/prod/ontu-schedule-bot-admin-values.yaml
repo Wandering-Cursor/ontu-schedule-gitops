@@ -1,0 +1,70 @@
+# Production environment values for ontu-schedule-bot-admin
+
+# Use a specific tag for production
+image:
+  tag: "v1.0.0"
+
+replicaCount: 3
+
+# Enable ConfigMap for production configuration
+configMap:
+  enabled: true
+  data:
+    LOG_LEVEL: "warn"
+    ENVIRONMENT: "production"
+
+secrets:
+  enabled: false
+  data: {}
+
+envFrom:
+  - configMapRef:
+      name: ontu-schedule-bot-admin
+
+# Resource limits for production
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+# Enable autoscaling in production
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Production ingress with proper TLS
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: bot-admin.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: bot-admin-prod-tls
+      hosts:
+        - bot-admin.example.com
+
+# Production-specific pod disruption budget considerations
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - ontu-schedule-bot-admin
+          topologyKey: kubernetes.io/hostname

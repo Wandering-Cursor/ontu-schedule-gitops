@@ -1,0 +1,40 @@
+# Sealed Secrets
+pub-cert.pem
+*.pem
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Helm
+charts/*.tgz
+.helmignore
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Secrets (unencrypted)
+secret.yaml
+secrets.yaml
+*-secret.yaml
+!*-sealed.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Logs
+*.log

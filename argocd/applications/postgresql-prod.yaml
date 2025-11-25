@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgresql-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: ontu-schedule
+  
+  source:
+    repoURL: https://github.com/Wandering-Cursor/ontu-schedule-gitops.git
+    targetRevision: HEAD
+    path: infrastructure/postgresql
+    helm:
+      releaseName: postgresql
+      valueFiles:
+        - ../../environments/prod/postgresql-values.yaml
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ontu-schedule-prod
+  
+  syncPolicy:
+    # Manual sync for production database - CRITICAL!
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/replicas
+    - group: ""
+      kind: PersistentVolumeClaim
+      jsonPointers:
+        - /spec/resources/requests/storage

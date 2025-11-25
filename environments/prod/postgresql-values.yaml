@@ -1,0 +1,35 @@
+# Production environment PostgreSQL configuration
+
+postgresql:
+  global:
+    postgresql:
+      auth:
+        username: ontu_prod_user
+        database: ontu_schedule_prod
+        existingSecret: "postgresql-secrets"
+  
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+    
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+    
+    # High availability configuration (optional)
+    # Uncomment for production HA setup
+    # replicaCount: 2
+  
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  
+  # Enable backups for production
+  backup:
+    enabled: false  # Set to true and configure storage
