@@ -6,17 +6,12 @@ postgresql:
   global:
     postgresql:
       auth:
-        # Username for the PostgreSQL database
         username: ontu_user
-        # Database name
         database: ontu_schedule
-        # Existing secret with PostgreSQL credentials (use Sealed Secrets)
-        # If not specified, a random password will be generated
         existingSecret: ""
-        # Key in the secret containing the password
         secretKeys:
-          adminPasswordKey: postgres-password
-          userPasswordKey: password
+          adminPasswordKey: Y9HImDVqHpz5suU3lbiEWiICa0owXjNN7xLncTZ9xdk=
+          userPasswordKey: Zf/t3MIzXxMAK6dAigk43f0cyqErjh2BHHuhg48oliM=
   
   # PostgreSQL primary configuration
   primary:

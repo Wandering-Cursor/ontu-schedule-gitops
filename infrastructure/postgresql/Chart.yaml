@@ -3,9 +3,9 @@ name: postgresql
 description: A Helm chart for deploying PostgreSQL database
 type: application
 version: 0.1.0
-appVersion: "16.1.0"
+appVersion: "18.1.0"
 
 dependencies:
   - name: postgresql
-    version: "13.2.24"
+    version: "18.1.0"
     repository: https://charts.bitnami.com/bitnami

@@ -15,7 +15,12 @@ configMap:
 
 secrets:
   enabled: false
-  data: {}
+  data:
+    - name: DATABASE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: postgresql-secrets
+          key: Zf/t3MIzXxMAK6dAigk43f0cyqErjh2BHHuhg48oliM=
 
 envFrom:
   - configMapRef:
@@ -33,10 +38,9 @@ resources:
 # Enable autoscaling in production
 autoscaling:
   enabled: true
-  minReplicas: 3
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 70
-  targetMemoryUtilizationPercentage: 80
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 90
 
 # Production ingress with proper TLS
 ingress:
@@ -46,14 +50,14 @@ ingress:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/rate-limit: "100"
   hosts:
-    - host: bot-admin.example.com
+    - host: ontu-schedule.pavp.pp.ua
       paths:
         - path: /
           pathType: Prefix
   tls:
-    - secretName: bot-admin-prod-tls
+    - secretName: ontu-schedule-bot-admin-prod-tls
       hosts:
-        - bot-admin.example.com
+        - ontu-schedule.pavp.pp.ua
 
 # Production-specific pod disruption budget considerations
 affinity:
