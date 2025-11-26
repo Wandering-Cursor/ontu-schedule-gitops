@@ -38,3 +38,5 @@ secrets.yaml
 
 # Logs
 *.log
+
+.env
