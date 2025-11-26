@@ -1,0 +1,11 @@
+# ConfigMap for HTML content
+# Contains custom HTML page
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "example-nginx.fullname" . }}-html
+  labels:
+    {{- include "example-nginx.labels" . | nindent 4 }}
+data:
+  index.html: |
+{{ .Values.htmlContent | indent 4 }}

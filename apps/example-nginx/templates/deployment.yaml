@@ -1,0 +1,123 @@
+# Deployment for Example NGINX Application
+# Demonstrates how to use ConfigMaps, Secrets, and environment variables
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "example-nginx.fullname" . }}
+  labels:
+    {{- include "example-nginx.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "example-nginx.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "example-nginx.selectorLabels" . | nindent 8 }}
+      annotations:
+        # Automatically restart pods when ConfigMap or Secret changes
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/nginx-config: {{ include (print $.Template.BasePath "/configmap-nginx.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          
+          # Environment variables from ConfigMap
+          # These are non-sensitive configuration values
+          envFrom:
+            - configMapRef:
+                name: {{ include "example-nginx.fullname" . }}-config
+          
+          # Individual environment variables from ConfigMap
+          env:
+            # Example: individual env var from ConfigMap
+            - name: CUSTOM_HEADER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "example-nginx.fullname" . }}-config
+                  key: APP_NAME
+            
+            # Environment variables from Secret
+            # These are sensitive values that should be protected
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "example-nginx.fullname" . }}-secret
+                  key: API_KEY
+            
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "example-nginx.fullname" . }}-secret
+                  key: DB_PASSWORD
+            
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "example-nginx.fullname" . }}-secret
+                  key: JWT_SECRET
+            
+            - name: EXTERNAL_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "example-nginx.fullname" . }}-secret
+                  key: EXTERNAL_SERVICE_TOKEN
+          
+          # Volume mounts for custom configuration
+          volumeMounts:
+            # Mount custom NGINX configuration
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            # Mount custom HTML content
+            - name: html-content
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+          
+          # Liveness probe - checks if container is running
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          # Readiness probe - checks if container is ready to serve traffic
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      
+      # Volumes definition
+      volumes:
+        # NGINX configuration from ConfigMap
+        - name: nginx-config
+          configMap:
+            name: {{ include "example-nginx.fullname" . }}-nginx-config
+        # HTML content from ConfigMap
+        - name: html-content
+          configMap:
+            name: {{ include "example-nginx.fullname" . }}-html
+      
+      # Security context for the pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101  # nginx user
+        fsGroup: 101

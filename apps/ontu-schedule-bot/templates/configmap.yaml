@@ -1,11 +1,11 @@
-# ConfigMap for ONTU Schedule Bot Admin
+# ConfigMap for ONTU Schedule Bot
 # Contains non-sensitive configuration values
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "ontu-schedule-bot-admin.fullname" . }}
+  name: {{ include "ontu-schedule-bot.fullname" . }}
   labels:
-    {{- include "ontu-schedule-bot-admin.labels" . | nindent 4 }}
+    {{- include "ontu-schedule-bot.labels" . | nindent 4 }}
 data:
   {{- range $key, $value := .Values.env }}
   {{ $key }}: {{ $value | quote }}

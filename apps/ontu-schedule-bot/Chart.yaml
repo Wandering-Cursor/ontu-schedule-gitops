@@ -1,13 +1,12 @@
 apiVersion: v2
-name: ontu-schedule-bot-admin
-description: ONTU Schedule Bot Admin - Backend service with PostgreSQL and Redis
+name: ontu-schedule-bot
+description: ONTU Schedule Bot - Client service that communicates with admin backend
 type: application
 version: 1.0.0
 appVersion: "1.0.0"
 keywords:
   - ontu-schedule
   - bot
-  - admin
-  - backend
+  - client
 maintainers:
   - name: ONTU Schedule Team

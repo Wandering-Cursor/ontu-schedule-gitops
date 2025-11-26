@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "ontu-schedule-bot-admin.name" -}}
+{{- define "dragonfly.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "ontu-schedule-bot-admin.fullname" -}}
+{{- define "dragonfly.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "ontu-schedule-bot-admin.chart" -}}
+{{- define "dragonfly.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "ontu-schedule-bot-admin.labels" -}}
-helm.sh/chart: {{ include "ontu-schedule-bot-admin.chart" . }}
-{{ include "ontu-schedule-bot-admin.selectorLabels" . }}
+{{- define "dragonfly.labels" -}}
+helm.sh/chart: {{ include "dragonfly.chart" . }}
+{{ include "dragonfly.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,27 +43,27 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "ontu-schedule-bot-admin.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "ontu-schedule-bot-admin.name" . }}
+{{- define "dragonfly.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "dragonfly.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Database connection string helper
-Constructs PostgreSQL connection string from values
+Dragonfly host
 */}}
-{{- define "ontu-schedule-bot-admin.databaseUrl" -}}
-postgresql://{{ .Values.database.username }}:$(DB_PASSWORD)@{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }}
+{{- define "dragonfly.host" -}}
+{{ include "dragonfly.fullname" . }}
 {{- end }}
 
 {{/*
-Cache connection string helper
-Constructs Redis/Dragonfly connection URL
+Dragonfly connection URL
+Usage: {{ include "dragonfly.url" . }}
+Returns: redis://[:password@]host:port
 */}}
-{{- define "ontu-schedule-bot-admin.cacheUrl" -}}
-{{- if .Values.cache.useExternalSecret }}
-redis://:$(CACHE_PASSWORD)@{{ .Values.cache.host }}:{{ .Values.cache.port }}
+{{- define "dragonfly.url" -}}
+{{- if .Values.auth.password }}
+redis://:{{ .Values.auth.password }}@{{ include "dragonfly.fullname" . }}:{{ .Values.service.port }}
 {{- else }}
-redis://{{ .Values.cache.host }}:{{ .Values.cache.port }}
+redis://{{ include "dragonfly.fullname" . }}:{{ .Values.service.port }}
 {{- end }}
 {{- end }}

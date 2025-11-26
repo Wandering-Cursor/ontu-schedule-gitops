@@ -1,4 +1,6 @@
 {{- if .Values.autoscaling.enabled }}
+# HorizontalPodAutoscaler for ONTU Schedule Bot Admin
+# Automatically scales the number of pods based on CPU/memory usage
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:

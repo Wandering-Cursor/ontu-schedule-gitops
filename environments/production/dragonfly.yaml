@@ -1,0 +1,49 @@
+# Production Environment Configuration for Dragonfly
+
+# Image configuration
+image:
+  repository: docker.dragonflydb.io/dragonflydb/dragonfly
+  tag: "v1.12.1"
+  pullPolicy: IfNotPresent
+
+# Authentication
+# Set a strong password or use SealedSecret
+auth:
+  password: "REPLACE_WITH_SEALED_SECRET"
+
+# Persistence - enabled for production
+persistence:
+  enabled: true
+  storageClass: ""  # Use default or specify
+  size: 10Gi
+  accessMode: ReadWriteOnce
+
+# Production resource limits
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 6379
+
+# Dragonfly configuration
+config:
+  # Maximum memory in MB (0 = auto, uses available memory)
+  maxMemory: 1500
+  # Number of threads (0 = auto-detect)
+  threads: 0
+  # Enable snapshot persistence
+  snapshot: true
+  # Snapshot every hour
+  snapshotInterval: 3600
+
+# Enable metrics for monitoring
+metrics:
+  enabled: true
+  port: 6380

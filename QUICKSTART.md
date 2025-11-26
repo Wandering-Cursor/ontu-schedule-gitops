@@ -1,245 +1,362 @@
 # Quick Start Guide
 
-This guide will help you get your ArgoCD setup running quickly.
+Get started with the ONTU Schedule GitOps repository in minutes.
 
-## Prerequisites Checklist
+## 🎯 What You'll Deploy
 
-- [ ] Kubernetes cluster access
-- [ ] `kubectl` configured
-- [ ] ArgoCD CLI installed (optional, but recommended)
+- **Admin Backend**: API service with PostgreSQL and Dragonfly cache
+- **Bot Client**: User-facing bot that communicates with admin backend
+- **PostgreSQL**: Database for persistent data
+- **Dragonfly**: Redis-compatible cache
+- **Sealed Secrets**: Secure secret management
+- **Example NGINX**: Demo app showing best practices
 
-## Step-by-Step Setup
+## ⚡ Quick Start (5 minutes)
 
-### 1. Install ArgoCD (5 minutes)
+### Prerequisites
 
 ```bash
-# Create ArgoCD namespace
-kubectl create namespace argocd
+# Required
+kubectl version        # v1.24+
+helm version          # v3.x
+kubeseal --version    # latest
 
-# Install ArgoCD
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Wait for pods to be ready
-kubectl wait --for=condition=available --timeout=300s \
-  deployment/argocd-server -n argocd
+# Your cluster should be running
+kubectl cluster-info
 ```
 
-### 2. Access ArgoCD UI
-
-#### Option A: Port Forward (Development)
+### Step 1: Install Sealed Secrets
 
 ```bash
-# Port forward
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-
-# Get admin password
-kubectl -n argocd get secret argocd-initial-admin-secret \
-  -o jsonpath="{.data.password}" | base64 -d; echo
+cd ontu-schedule-gitops
+helm install sealed-secrets infrastructure/sealed-secrets -n kube-system
+kubeseal --fetch-cert > pub-cert.pem
 ```
 
-Access: https://localhost:8080
-- Username: `admin`
-- Password: (from command above)
-
-#### Option B: LoadBalancer (Production)
+### Step 2: Create Secrets
 
 ```bash
-# Change service type
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+# PostgreSQL password
+kubectl create secret generic postgresql \
+  --from-literal=username=postgres \
+  --from-literal=password=$(openssl rand -base64 32) \
+  --from-literal=database=ontu_schedule \
+  --dry-run=client -o yaml | kubeseal -o yaml | kubectl apply -f -
 
-# Get external IP
-kubectl get svc argocd-server -n argocd
+# Bot token (replace with your token)
+kubectl create secret generic ontu-schedule-bot-token \
+  --from-literal=token=YOUR_BOT_TOKEN \
+  --dry-run=client -o yaml | kubeseal -o yaml | kubectl apply -f -
 ```
 
-### 3. Install ArgoCD CLI (Optional)
+### Step 3: Deploy Infrastructure
 
 ```bash
-# macOS
-brew install argocd
+# PostgreSQL
+helm install postgresql infrastructure/postgresql \
+  -f environments/production/postgresql.yaml
 
-# Linux
-curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-chmod +x argocd
-sudo mv argocd /usr/local/bin/
+# Dragonfly
+helm install dragonfly infrastructure/dragonfly \
+  -f environments/production/dragonfly.yaml
 
-# Login
-argocd login localhost:8080
+# Wait for them to be ready
+kubectl wait --for=condition=ready --timeout=120s pod/postgresql-0
+kubectl wait --for=condition=ready --timeout=120s pod/dragonfly-0
 ```
 
-### 4. Deploy Projects and Bootstrap App
+### Step 4: Deploy Applications
 
 ```bash
-# Clone this repository
+# Update image repositories in values files first!
+# Edit: environments/production/ontu-schedule-bot-admin.yaml
+# Edit: environments/production/ontu-schedule-bot.yaml
+
+# Admin backend
+helm install ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
+  -f environments/production/ontu-schedule-bot-admin.yaml
+
+# Bot client
+helm install ontu-schedule-bot apps/ontu-schedule-bot \
+  -f environments/production/ontu-schedule-bot.yaml
+
+# Example app (optional)
+helm install example-nginx apps/example-nginx \
+  -f environments/production/example-nginx.yaml
+```
+
+### Step 5: Verify
+
+```bash
+# Check everything is running
+kubectl get pods
+
+# Test admin backend
+kubectl port-forward svc/ontu-schedule-bot-admin 8080:8080
+curl http://localhost:8080/health/ready
+
+# Test example nginx
+kubectl port-forward svc/example-nginx 8081:80
+# Visit http://localhost:8081
+```
+
+## 📖 What's Next?
+
+### Configure Your Domain
+
+Edit `environments/production/ontu-schedule-bot-admin.yaml`:
+
+```yaml
+ingress:
+  hosts:
+    - host: api.yourdomain.com  # Change this!
+```
+
+Then upgrade:
+
+```bash
+helm upgrade ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
+  -f environments/production/ontu-schedule-bot-admin.yaml
+```
+
+### Update Your Images
+
+Edit the values files to use your actual Docker images:
+
+```yaml
+image:
+  repository: ghcr.io/your-org/ontu-schedule-bot-admin
+  tag: "v1.0.0"  # Use specific versions, not 'latest'
+```
+
+### Enable Autoscaling
+
+Already configured for admin backend! It will scale from 3 to 10 replicas based on CPU/memory.
+
+### Set Up TLS
+
+If you have cert-manager installed:
+
+```yaml
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  tls:
+    - secretName: your-tls-secret
+      hosts:
+        - api.yourdomain.com
+```
+
+## 🔧 Common Tasks
+
+### View Logs
+
+```bash
+# Admin backend logs
+kubectl logs -l app.kubernetes.io/name=ontu-schedule-bot-admin -f
+
+# Bot logs
+kubectl logs -l app.kubernetes.io/name=ontu-schedule-bot -f
+
+# PostgreSQL logs
+kubectl logs postgresql-0
+```
+
+### Scale Applications
+
+```bash
+# Manual scaling
+kubectl scale deployment ontu-schedule-bot-admin --replicas=5
+
+# Or via Helm
+helm upgrade ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
+  --set replicaCount=5 \
+  -f environments/production/ontu-schedule-bot-admin.yaml
+```
+
+### Update Application
+
+```bash
+# Update image tag in values file
+# Then upgrade
+helm upgrade ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
+  -f environments/production/ontu-schedule-bot-admin.yaml
+
+# Watch rollout
+kubectl rollout status deployment/ontu-schedule-bot-admin
+```
+
+### Backup Database
+
+```bash
+# PostgreSQL backup
+kubectl exec postgresql-0 -- pg_dump -U postgres ontu_schedule > backup.sql
+
+# Restore
+cat backup.sql | kubectl exec -i postgresql-0 -- psql -U postgres ontu_schedule
+```
+
+### Update Secrets
+
+```bash
+# Create new sealed secret
+kubectl create secret generic postgresql \
+  --from-literal=password=new-password \
+  --dry-run=client -o yaml | kubeseal -o yaml | kubectl apply -f -
+
+# Restart affected pods
+kubectl rollout restart statefulset/postgresql
+kubectl rollout restart deployment/ontu-schedule-bot-admin
+```
+
+## 🐛 Troubleshooting
+
+### Pods Not Starting?
+
+```bash
+# Check events
+kubectl get events --sort-by='.lastTimestamp'
+
+# Describe pod
+kubectl describe pod <pod-name>
+
+# Check logs
+kubectl logs <pod-name>
+```
+
+### Can't Connect to Database?
+
+```bash
+# Test from within cluster
+kubectl run -it --rm psql-test --image=postgres:15-alpine --restart=Never -- \
+  psql -h postgresql -U postgres -d ontu_schedule
+
+# Check PostgreSQL is running
+kubectl get pods -l app.kubernetes.io/name=postgresql
+```
+
+### Ingress Not Working?
+
+```bash
+# Check ingress controller is running
+kubectl get pods -n ingress-nginx
+
+# Check ingress resource
+kubectl describe ingress ontu-schedule-bot-admin
+
+# Test service directly
+kubectl port-forward svc/ontu-schedule-bot-admin 8080:8080
+```
+
+### Sealed Secret Not Decrypting?
+
+```bash
+# Check controller logs
+kubectl logs -n kube-system -l app.kubernetes.io/name=sealed-secrets
+
+# Verify SealedSecret exists
+kubectl get sealedsecret
+
+# Verify Secret was created
+kubectl get secret
+```
+
+## 📚 Learn More
+
+- [Full Deployment Guide](docs/deployment-guide.md) - Detailed deployment instructions
+- [Sealed Secrets Guide](docs/sealed-secrets-guide.md) - Everything about secrets
+- [Architecture Overview](docs/architecture.md) - System design and components
+- [Chart READMEs](apps/) - Specific chart documentation
+
+## 🎓 Example: From Zero to Running
+
+Complete example workflow:
+
+```bash
+# 1. Clone repo
 git clone https://github.com/Wandering-Cursor/ontu-schedule-gitops.git
 cd ontu-schedule-gitops
 
-# Apply AppProjects
-kubectl apply -f argocd/projects/
+# 2. Install sealed secrets
+helm install sealed-secrets infrastructure/sealed-secrets -n kube-system
+kubectl wait --for=condition=available --timeout=60s deployment/sealed-secrets -n kube-system
 
-# Deploy bootstrap app (App-of-Apps)
-kubectl apply -f argocd/bootstrap/root-app.yaml
+# 3. Create secrets
+kubectl create secret generic postgresql \
+  --from-literal=username=postgres \
+  --from-literal=password=supersecret123 \
+  --from-literal=database=ontu_schedule \
+  --dry-run=client -o yaml | kubeseal -o yaml | kubectl apply -f -
+
+kubectl create secret generic ontu-schedule-bot-token \
+  --from-literal=token=123456:ABC-DEF1234 \
+  --dry-run=client -o yaml | kubeseal -o yaml | kubectl apply -f -
+
+# 4. Deploy infrastructure
+helm install postgresql infrastructure/postgresql \
+  -f environments/production/postgresql.yaml
+helm install dragonfly infrastructure/dragonfly \
+  -f environments/production/dragonfly.yaml
+
+# 5. Wait for infrastructure
+kubectl wait --for=condition=ready --timeout=120s pod/postgresql-0
+kubectl wait --for=condition=ready --timeout=120s pod/dragonfly-0
+
+# 6. Deploy applications
+# (After updating image repositories in values files)
+helm install ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
+  -f environments/production/ontu-schedule-bot-admin.yaml
+helm install ontu-schedule-bot apps/ontu-schedule-bot \
+  -f environments/production/ontu-schedule-bot.yaml
+
+# 7. Verify everything
+kubectl get pods
+kubectl get svc
+kubectl get ingress
+
+# 8. Test
+kubectl port-forward svc/ontu-schedule-bot-admin 8080:8080
+# In another terminal:
+curl http://localhost:8080/health/ready
 ```
 
-### 5. Verify Deployment
-
-```bash
-# Check applications
-argocd app list
-
-# Or using kubectl
-kubectl get applications -n argocd
-
-# Check deployed pods
-kubectl get pods -n sealed-secrets
-kubectl get pods -n ontu-schedule-dev
-kubectl get pods -n ontu-schedule-staging
-```
-
-## What Gets Deployed?
-
-After applying the bootstrap app, the following will be automatically deployed:
-
-1. **Sealed Secrets Controller** (namespace: `sealed-secrets`)
-   - Manages encrypted secrets in Git
-
-2. **OnTu Schedule Bot Admin - Dev** (namespace: `ontu-schedule-dev`)
-   - Development environment
-   - Auto-sync enabled
-   - Image tag: `develop`
-
-3. **OnTu Schedule Bot Admin - Staging** (namespace: `ontu-schedule-staging`)
-   - Staging environment
-   - Auto-sync enabled
-   - Image tag: `staging`
-   - HPA enabled (2-5 replicas)
-
-4. **OnTu Schedule Bot Admin - Prod** (namespace: `ontu-schedule-prod`)
-   - Production environment
-   - Manual sync (requires approval)
-   - Image tag: `v1.0.0`
-   - HPA enabled (3-10 replicas)
-
-## Next Steps
-
-### Configure Secrets
-
-If your application needs secrets:
-
-```bash
-# Fetch Sealed Secrets certificate
-./scripts/seal-secret.sh fetch-cert
-
-# Encrypt a secret (interactive)
-./scripts/seal-secret.sh interactive
-
-# Or encrypt a specific value
-./scripts/seal-secret.sh encrypt-value \
-  my-app-secrets \
-  ontu-schedule-dev \
-  "my-secret-value"
-```
-
-Add the encrypted value to your environment values file and commit.
-
-### Add a New Application
-
-```bash
-# Use the helper script
-./scripts/create-app.sh
-
-# Or manually follow the guide in README.md
-```
-
-### Customize Existing Application
-
-1. Edit environment values in `environments/{dev,staging,prod}/`
-2. Commit and push
-3. ArgoCD will automatically sync (except prod, which requires manual sync)
-
-## Troubleshooting
-
-### Applications Not Syncing
-
-```bash
-# Check application status
-argocd app get <app-name>
-
-# View sync errors
-argocd app sync <app-name> --dry-run
-
-# Force sync
-argocd app sync <app-name> --force
-```
-
-### Pods Not Starting
-
-```bash
-# Check pod status
-kubectl get pods -n <namespace>
-
-# View pod logs
-kubectl logs -n <namespace> <pod-name>
-
-# Describe pod for events
-kubectl describe pod -n <namespace> <pod-name>
-```
-
-### Image Pull Errors
-
-Since you're using public GHCR images, you shouldn't need credentials. If you see pull errors:
-
-```bash
-# Verify image exists and is public
-docker pull ghcr.io/wandering-cursor/ontu-schedule-bot-admin:develop
-
-# Check if rate limiting is the issue
-kubectl describe pod -n <namespace> <pod-name>
-```
-
-If you need to use private images, add `imagePullSecrets` to your values file.
-
-## Common Commands
-
-```bash
-# List all applications
-argocd app list
-
-# Sync an application
-argocd app sync <app-name>
-
-# View application details
-argocd app get <app-name>
-
-# View application logs
-argocd app logs <app-name>
-
-# Delete an application
-argocd app delete <app-name>
-
-# Refresh application (re-query Git)
-argocd app refresh <app-name>
-
-# Rollback to previous version
-argocd app rollback <app-name>
-```
-
-## Production Checklist
+## ✅ Production Checklist
 
 Before going to production:
 
-- [ ] Update image tags in `environments/prod/` to specific versions
-- [ ] Configure proper ingress with TLS certificates
-- [ ] Set up monitoring and alerting
-- [ ] Configure backup and disaster recovery
-- [ ] Review and adjust resource limits
-- [ ] Set up pod disruption budgets
-- [ ] Configure network policies
+- [ ] Update all image repositories to your actual images
+- [ ] Use specific version tags, not `latest`
+- [ ] Create strong passwords for all secrets
+- [ ] Configure your actual domain names
+- [ ] Set up TLS certificates (cert-manager + Let's Encrypt)
+- [ ] Configure ingress controller properly
+- [ ] Set appropriate resource limits based on your needs
+- [ ] Enable monitoring (Prometheus/Grafana)
+- [ ] Set up log aggregation
+- [ ] Configure backup strategy
+- [ ] Test disaster recovery
 - [ ] Review security contexts
-- [ ] Test failover scenarios
-- [ ] Document runbooks
+- [ ] Enable pod security policies
+- [ ] Set up alerts
+- [ ] Document your custom configurations
 
-## Getting Help
+## 🆘 Need Help?
 
-- Check the main [README.md](README.md) for detailed information
-- Review [ArgoCD documentation](https://argo-cd.readthedocs.io/)
-- Check [Sealed Secrets documentation](https://github.com/bitnami-labs/sealed-secrets)
+1. Check the [Troubleshooting](#-troubleshooting) section
+2. Review [docs/deployment-guide.md](docs/deployment-guide.md)
+3. Check application logs
+4. Review Kubernetes events
+5. Ensure all prerequisites are met
+
+## 🎉 Success!
+
+You now have a production-ready GitOps repository with:
+- ✅ Infrastructure as Code (Helm charts)
+- ✅ Secure secret management (Sealed Secrets)
+- ✅ Autoscaling and high availability
+- ✅ Health checks and monitoring readiness
+- ✅ Comprehensive documentation
+- ✅ Production-grade configurations
+- ✅ Best practices implemented
+
+Happy deploying! 🚀

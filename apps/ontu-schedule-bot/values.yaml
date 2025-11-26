@@ -1,10 +1,10 @@
-# ONTU Schedule Bot Admin Configuration
-# Default values for the admin bot backend service
+# ONTU Schedule Bot Configuration
+# Default values for the client bot service
 
 # Application image configuration
 image:
   # Docker image repository
-  repository: ghcr.io/wandering-cursor/ontu-schedule-bot-admin
+  repository: ghcr.io/wandering-cursor/ontu-schedule-bot
   # Image tag (override with specific version)
   tag: "latest"
   pullPolicy: Always
@@ -15,48 +15,64 @@ replicaCount: 1
 # Service configuration
 service:
   type: ClusterIP
-  port: 8000
+  port: 8080
   # Target port in the container
-  targetPort: 8000
+  targetPort: 8080
 
-# Ingress configuration
+# Ingress configuration (optional - may not need external access)
 ingress:
   # Enable ingress
-  enabled: true
+  enabled: false
   className: "nginx"
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  # Hosts configuration
   hosts:
-    - host: ontu-schedule.pavp.pp.ua
+    - host: bot.ontu-schedule.example.com
       paths:
         - path: /
           pathType: Prefix
-  # TLS configuration
   tls:
-    - secretName: ontu-schedule-admin-tls
+    - secretName: ontu-schedule-bot-tls
       hosts:
-        - ontu-schedule.pavp.pp.ua
+        - bot.ontu-schedule.example.com
 
 # Resource limits
 resources:
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 50m
+    memory: 64Mi
   limits:
-    cpu: 500m
-    memory: 512Mi
+    cpu: 200m
+    memory: 256Mi
+
+# Admin backend configuration
+adminBackend:
+  # Service name of the admin backend
+  host: "ontu-schedule-bot-admin"
+  port: 8080
+  # Protocol (http or https)
+  protocol: "http"
+  # API endpoint path
+  apiPath: "/api/v1"
+  # API timeout in seconds
+  timeout: 30
+
+# Bot configuration
+bot:
+  # Bot token (use external secret in production)
+  useExternalSecret: false
+  externalSecretName: "ontu-schedule-bot-token"
+  tokenKey: "token"
 
 # Environment variables
 env:
-  # Application environment (development, staging, production)
+  # Application environment
   APP_ENV: "production"
   # Log level
   LOG_LEVEL: "info"
-  # Additional environment variables can be added here
+  # Additional settings
   # Example:
-  # API_TIMEOUT: "30"
+  # POLLING_INTERVAL: "60"
 
 # Health check configuration
 healthCheck:
@@ -65,19 +81,18 @@ healthCheck:
   # Readiness probe path
   readinessPath: /health/ready
   # Initial delay in seconds
-  initialDelaySeconds: 30
+  initialDelaySeconds: 20
   # Period in seconds
   periodSeconds: 10
 
 # Autoscaling configuration (optional)
 autoscaling:
   enabled: false
-  minReplicas: 2
-  maxReplicas: 10
+  minReplicas: 1
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: 80
 
 # Pod disruption budget
 podDisruptionBudget:
-  enabled: true
+  enabled: false
   minAvailable: 1

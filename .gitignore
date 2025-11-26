@@ -26,7 +26,7 @@ kubeconfig
 *.kubeconfig
 
 # Secrets (unencrypted)
-secret.yaml
+!secret.yaml
 secrets.yaml
 *-secret.yaml
 !*-sealed.yaml

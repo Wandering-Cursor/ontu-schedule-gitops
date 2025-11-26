@@ -1,0 +1,250 @@
+# Production Environment Configuration for Example NGINX
+
+# NGINX image
+image:
+  repository: nginx
+  tag: "1.25-alpine"
+  pullPolicy: IfNotPresent
+
+# Single replica for example
+replicaCount: 1
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # For production with TLS, change to:
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: example.ontu-schedule.local  # CHANGE THIS to your domain
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+    # For production with TLS, uncomment:
+    # - secretName: example-nginx-tls
+    #   hosts:
+    #     - example.ontu-schedule.local
+
+# Resource limits
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    cpu: 50m
+    memory: 64Mi
+
+# Non-sensitive configuration
+config:
+  APP_NAME: "Example NGINX Production"
+  APP_VERSION: "1.0.0"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "warn"  # Less verbose in production
+  MAX_CONNECTIONS: "1000"
+  CACHE_ENABLED: "true"
+
+# Secrets - REPLACE THESE WITH SEALED SECRETS!
+# DO NOT commit real secrets here!
+secrets:
+  API_KEY: "prod-api-key-REPLACE-ME"
+  DB_PASSWORD: "prod-db-password-REPLACE-ME"
+  JWT_SECRET: "prod-jwt-secret-REPLACE-ME"
+  EXTERNAL_SERVICE_TOKEN: "prod-token-REPLACE-ME"
+
+# Custom NGINX configuration for production
+nginxConfig: |
+  server {
+      listen 80;
+      server_name localhost;
+      
+      # Security headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      
+      # Gzip compression
+      gzip on;
+      gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+      
+      # Serve static content
+      location / {
+          root /usr/share/nginx/html;
+          index index.html;
+          
+          # Cache static files
+          expires 1h;
+          add_header Cache-Control "public, immutable";
+      }
+      
+      # Health check endpoint
+      location /health {
+          access_log off;
+          return 200 "healthy\n";
+          add_header Content-Type text/plain;
+      }
+      
+      # Metrics endpoint (if needed)
+      location /metrics {
+          access_log off;
+          return 200 "metrics\n";
+          add_header Content-Type text/plain;
+      }
+  }
+
+# Production HTML content
+htmlContent: |
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <title>Example NGINX - Production</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 20px;
+          }
+          .container {
+              background: white;
+              padding: 40px;
+              border-radius: 12px;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+              max-width: 800px;
+              width: 100%;
+          }
+          h1 {
+              color: #667eea;
+              margin-bottom: 20px;
+              font-size: 2.5em;
+          }
+          .badge {
+              display: inline-block;
+              padding: 4px 12px;
+              background: #10b981;
+              color: white;
+              border-radius: 12px;
+              font-size: 0.85em;
+              font-weight: bold;
+              margin-bottom: 20px;
+          }
+          .info-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 15px;
+              margin: 20px 0;
+          }
+          .info-item {
+              padding: 15px;
+              background: #f8f9fa;
+              border-radius: 8px;
+              border-left: 4px solid #667eea;
+          }
+          .label {
+              font-size: 0.85em;
+              color: #666;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+          }
+          .value {
+              font-size: 1.2em;
+              color: #333;
+              font-weight: bold;
+              margin-top: 5px;
+          }
+          .features {
+              margin: 30px 0;
+          }
+          .features ul {
+              list-style: none;
+          }
+          .features li {
+              padding: 10px 0;
+              padding-left: 30px;
+              position: relative;
+          }
+          .features li:before {
+              content: "✓";
+              position: absolute;
+              left: 0;
+              color: #10b981;
+              font-weight: bold;
+              font-size: 1.2em;
+          }
+          .footer {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 2px solid #e5e7eb;
+              text-align: center;
+              color: #666;
+              font-size: 0.9em;
+          }
+          a {
+              color: #667eea;
+              text-decoration: none;
+          }
+          a:hover {
+              text-decoration: underline;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <h1>🚀 Example NGINX</h1>
+          <span class="badge">PRODUCTION</span>
+          
+          <div class="info-grid">
+              <div class="info-item">
+                  <div class="label">Application</div>
+                  <div class="value">Example NGINX</div>
+              </div>
+              <div class="info-item">
+                  <div class="label">Version</div>
+                  <div class="value">1.0.0</div>
+              </div>
+              <div class="info-item">
+                  <div class="label">Environment</div>
+                  <div class="value">Production</div>
+              </div>
+              <div class="info-item">
+                  <div class="label">Status</div>
+                  <div class="value" style="color: #10b981;">Online</div>
+              </div>
+          </div>
+          
+          <div class="features">
+              <h2 style="color: #333; margin-bottom: 15px;">Features Demonstrated</h2>
+              <ul>
+                  <li>ConfigMaps for non-sensitive configuration</li>
+                  <li>Secrets for sensitive data (API keys, passwords)</li>
+                  <li>SealedSecrets for GitOps workflow</li>
+                  <li>Environment variables injection</li>
+                  <li>Custom NGINX configuration</li>
+                  <li>Health check endpoints</li>
+                  <li>Production-ready resource limits</li>
+                  <li>Security headers and best practices</li>
+              </ul>
+          </div>
+          
+          <div class="footer">
+              <p>Health Check: <a href="/health">/health</a></p>
+              <p style="margin-top: 10px;">Part of ONTU Schedule GitOps Repository</p>
+          </div>
+      </div>
+  </body>
+  </html>

@@ -1,0 +1,17 @@
+# Service for ONTU Schedule Bot
+# Exposes the bot service within the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ontu-schedule-bot.fullname" . }}
+  labels:
+    {{- include "ontu-schedule-bot.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "ontu-schedule-bot.selectorLabels" . | nindent 4 }}

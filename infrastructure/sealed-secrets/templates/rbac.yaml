@@ -1,0 +1,60 @@
+# ClusterRole for sealed-secrets controller
+# Grants permissions to manage secrets and sealedsecrets across all namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "sealed-secrets.fullname" . }}
+  labels:
+    {{- include "sealed-secrets.labels" . | nindent 4 }}
+rules:
+  # Permission to get, create, update sealed secrets
+  - apiGroups:
+      - bitnami.com
+    resources:
+      - sealedsecrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - bitnami.com
+    resources:
+      - sealedsecrets/status
+    verbs:
+      - update
+  # Permission to manage secrets
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - create
+      - update
+      - delete
+      - watch
+  # Permission to read events
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+---
+# ClusterRoleBinding to grant the controller the necessary permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "sealed-secrets.fullname" . }}
+  labels:
+    {{- include "sealed-secrets.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "sealed-secrets.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "sealed-secrets.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}

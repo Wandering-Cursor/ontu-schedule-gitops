@@ -1,0 +1,12 @@
+# ConfigMap for application configuration
+# Contains non-sensitive environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "example-nginx.fullname" . }}-config
+  labels:
+    {{- include "example-nginx.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

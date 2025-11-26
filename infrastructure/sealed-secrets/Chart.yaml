@@ -1,11 +1,12 @@
 apiVersion: v2
 name: sealed-secrets
-description: A Helm chart for deploying Sealed Secrets controller
+description: Sealed Secrets controller for encrypting secrets in Git
 type: application
-version: 0.1.0
-appVersion: "0.24.0"
-
-dependencies:
-  - name: sealed-secrets
-    version: "2.13.2"
-    repository: https://bitnami-labs.github.io/sealed-secrets
+version: 1.0.0
+appVersion: "v0.24.0"
+keywords:
+  - sealed-secrets
+  - secrets
+  - security
+maintainers:
+  - name: ONTU Schedule Team

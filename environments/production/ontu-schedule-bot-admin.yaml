@@ -1,0 +1,76 @@
+# Production Environment Configuration for ONTU Schedule Bot Admin
+
+# Application image - use specific tags in production
+image:
+  repository: ghcr.io/wandering-cursor/ontu-schedule-bot-admin
+  # IMPORTANT: Replace 'latest' with specific version tag
+  tag: "v1.0.0"  # Change to your actual version
+  pullPolicy: Always
+
+# Number of replicas for high availability
+replicaCount: 3
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    # Request timeout
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+  hosts:
+    - host: admin-api.ontu-schedule.example.com  # CHANGE THIS
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ontu-schedule-admin-tls
+      hosts:
+        - admin-api.ontu-schedule.example.com  # CHANGE THIS
+
+# Production resource limits
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Production environment variables
+env:
+  APP_ENV: "production"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  # Add your custom environment variables here
+  # API_TIMEOUT: "30"
+  # MAX_UPLOAD_SIZE: "10485760"
+
+# Health check configuration
+healthCheck:
+  livenessPath: /health/live
+  readinessPath: /health/ready
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+# Enable autoscaling for production
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 80
+
+# Pod disruption budget - ensure availability during updates
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

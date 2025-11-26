@@ -1,0 +1,13 @@
+apiVersion: v2
+name: dragonfly
+description: Dragonfly - Modern Redis-compatible in-memory datastore
+type: application
+version: 1.0.0
+appVersion: "v1.12.1"
+keywords:
+  - dragonfly
+  - redis
+  - cache
+  - in-memory
+maintainers:
+  - name: ONTU Schedule Team

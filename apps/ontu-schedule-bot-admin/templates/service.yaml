@@ -1,3 +1,5 @@
+# Service for ONTU Schedule Bot Admin
+# Exposes the admin backend service within the cluster
 apiVersion: v1
 kind: Service
 metadata:
