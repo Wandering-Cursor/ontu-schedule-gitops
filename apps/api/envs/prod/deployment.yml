@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ontu-schedule-bot-admin
+spec:
+  template:
+    spec:
+      containers:
+      - name: ontu-schedule-bot-admin
+        env:
+        - name: ENV
+          value: "prod"
+        - name: GPU_ENABLED
+          value: "1"

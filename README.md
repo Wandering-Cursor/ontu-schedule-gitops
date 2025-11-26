@@ -1,114 +1,29 @@
-# ONTU Schedule GitOps Repository
+# How to structure your Argo CD repositories using Application Sets
 
-This repository contains Helm charts and configuration files for deploying the ONTU Schedule application stack using GitOps principles.
+This is an exaple repository for Organizing your applications with Argo CD.
 
-## 📁 Repository Structure
+## Best practice - Use the three level structure
 
-```
-.
-├── apps/                           # Application Helm charts
-│   ├── ontu-schedule-bot-admin/   # Admin bot with PostgreSQL and Redis
-│   ├── ontu-schedule-bot/         # Client bot
-│   └── example-nginx/             # Example application with secrets
-├── infrastructure/                 # Infrastructure components
-│   ├── postgresql/                # PostgreSQL database
-│   ├── dragonfly/                 # Dragonfly (Redis-compatible cache)
-│   └── sealed-secrets/            # Sealed Secrets controller
-├── environments/                   # Environment-specific configurations
-│   └── production/                # Production environment values
-└── docs/                          # Documentation
-```
+The starting point should be a 3 level structure as shown in the image below
 
-## 🚀 Quick Start
+![structure](docs/hierarchy-of-manifests.png)
 
-### Prerequisites
+At the lowest level we have the Kubernetes manifests that define how the application runs (category 1 of manifests). These are your Kustomize or Helm templates and they are completely self-contained, meaning that they can be deployed on their own on any cluster even without Argo CD. We have covered in detail the structure of these files in the promotion blog post. 
 
-- Kubernetes cluster (v1.24+)
-- Helm 3.x installed
-- kubectl configured
-- kubeseal CLI (for sealed secrets)
+One level above, we have the Application Set as explained in the previous section. These wrap the main Kubernetes manifests into Argo CD applications (category 2 of manifests). Notice that in most cases you only need ApplicationSets and not individual Application CRDs.
 
-### Installation Order
+Last, as an optional component you can group all your application sets in an App-of-App that will help you bootstrap a completely empty cluster with all apps. This level might not be needed if you have a different way of creating clusters (i.e. with terraform/pulumi/crossplane) and this is why it is not really essential.
 
-1. **Install infrastructure components:**
-   ```bash
-   # Install Sealed Secrets controller first
-   helm install sealed-secrets infrastructure/sealed-secrets -n kube-system
-   
-   # Install PostgreSQL
-   helm install postgresql infrastructure/postgresql -n default
-   
-   # Install Dragonfly (Redis alternative)
-   helm install dragonfly infrastructure/dragonfly -n default
-   ```
+And that’s it!
 
-2. **Install applications:**
-   ```bash
-   # Install admin bot (depends on PostgreSQL and Dragonfly)
-   helm install ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
-     -f environments/production/ontu-schedule-bot-admin.yaml
-   
-   # Install client bot
-   helm install ontu-schedule-bot apps/ontu-schedule-bot \
-     -f environments/production/ontu-schedule-bot.yaml
-   ```
+Notice how simple this pattern is:
 
-3. **Install example application:**
-   ```bash
-   helm install example-nginx apps/example-nginx \
-     -f environments/production/example-nginx.yaml
-   ```
+There are only 3 levels of abstraction. We have seen companies that have 4 or 5 making the mental model much more complex
+Each level is completely independent of everything else. You can install the Kubernetes manifests on their own, or you can pick a specific application set or you can pick everything at the root. But it is your choice.
+Helm and Kustomize are only used once at the Kubernetes manifests and nowhere else. This makes the templating system super easy to understand
 
-## 🔐 Managing Secrets
+![folders](docs/levels.png)
 
-This repository uses **Sealed Secrets** for secure secret management in Git.
+Read the full blog post at https://codefresh.io/blog/how-to-structure-your-argo-cd-repositories-using-application-sets/
 
-### Creating Sealed Secrets
 
-1. Create a regular Kubernetes secret:
-   ```bash
-   kubectl create secret generic my-secret \
-     --from-literal=password=mysecretpassword \
-     --dry-run=client -o yaml > secret.yaml
-   ```
-
-2. Seal the secret:
-   ```bash
-   kubeseal -f secret.yaml -w sealed-secret.yaml
-   ```
-
-3. Commit `sealed-secret.yaml` to Git (it's safe to commit!)
-
-See [docs/sealed-secrets-guide.md](docs/sealed-secrets-guide.md) for detailed instructions.
-
-## 📚 Documentation
-
-- [Sealed Secrets Guide](docs/sealed-secrets-guide.md) - How to manage secrets
-- [Deployment Guide](docs/deployment-guide.md) - Step-by-step deployment instructions
-- [Architecture Overview](docs/architecture.md) - System architecture and dependencies
-
-## 🔄 Updating Applications
-
-To update an application:
-
-```bash
-helm upgrade ontu-schedule-bot-admin apps/ontu-schedule-bot-admin \
-  -f environments/production/ontu-schedule-bot-admin.yaml
-```
-
-## 🧹 Cleanup
-
-To remove all resources:
-
-```bash
-helm uninstall ontu-schedule-bot
-helm uninstall ontu-schedule-bot-admin
-helm uninstall example-nginx
-helm uninstall dragonfly
-helm uninstall postgresql
-helm uninstall sealed-secrets -n kube-system
-```
-
-## 📝 License
-
-This repository is public and available for use.

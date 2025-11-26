@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ontu-schedule-bot-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ontu-schedule-bot-admin
+  template:
+    metadata:
+      labels:
+        app: ontu-schedule-bot-admin
+    spec:
+      containers:
+      - name: ontu-schedule-bot-admin
+        imagePullPolicy: Always
+        image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:latest
+        ports:
+        - containerPort: 8000
