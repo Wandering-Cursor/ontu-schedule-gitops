@@ -18,3 +18,13 @@ spec:
             secretKeyRef:
               name: ontu-schedule-bot-admin-secret
               key: app__security_key
+        - name: app__db_url
+          valueFrom:
+            secretKeyRef:
+              name: ontu-schedule-bot-admin-secret
+              key: app__db_url
+        - name: app__redis_url
+          valueFrom:
+            secretKeyRef:
+              name: ontu-schedule-bot-admin-secret
+              key: app__redis_url
