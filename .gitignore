@@ -2,3 +2,4 @@
 
 kubeseal
 kubeseal-*.tar.gz
+secret.yml
