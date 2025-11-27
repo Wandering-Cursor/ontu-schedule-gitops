@@ -13,3 +13,8 @@ spec:
           value: "prod"
         - name: GPU_ENABLED
           value: "1"
+        - name: app__security_key
+          valueFrom:
+            secretKeyRef:
+              name: ontu-schedule-bot-admin-secret
+              key: app__security_key
