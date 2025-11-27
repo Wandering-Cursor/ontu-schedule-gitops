@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-deployment
+  name: ontu-schedule-bot-admin
 spec:
   template:
     spec:
