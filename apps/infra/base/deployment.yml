@@ -19,12 +19,7 @@ spec:
         image: postgres:17
         ports:
         - containerPort: 5432
-  volumeClaimTemplates:
-    metadata:
-      name: postgresql-pvc
-    spec:
-      accessModes:
-        - ReadWriteOnce
-    resources:
-      requests:
-        storage: 10Gi
+      volumes:
+      - name: postgresql-pvc
+        persistentVolumeClaim:
+            claimName: postgresql-pvc
