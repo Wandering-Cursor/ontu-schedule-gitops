@@ -11,7 +11,7 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-      - ontu-schedule.pavp.pp.ua
+        - ontu-schedule.pavp.pp.ua
       secretName: ontu-schedule-tls
   rules:
     - host: ontu-schedule.pavp.pp.ua
