@@ -2,19 +2,19 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: all-apps
-  namespace: ontu-schedule
+  namespace: argocd
 spec:
-  project: default
+  project: ontu-schedule
   source:
     repoURL: https://github.com/wandering-cursor/ontu-schedule-gitops.git
     targetRevision: HEAD
     path: appsets
   destination:
     server: https://kubernetes.default.svc
-    namespace: ontu-schedule
+    namespace: argocd
   syncPolicy:
     syncOptions:
-    - CreateNamespace=true  
-    automated: 
-      prune: true 
+    - CreateNamespace=true
+    automated:
+      prune: true
       selfHeal: true
