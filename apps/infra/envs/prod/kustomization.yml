@@ -6,6 +6,6 @@ resources:
 
 patches:
 - path: deployment.yml
-- path: version.yml
 - path: replicas.yml
-- path: settings.yml
+# - path: settings.yml
+# - path: version.yml
