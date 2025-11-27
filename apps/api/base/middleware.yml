@@ -1,0 +1,9 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-except-acme
+spec:
+  redirectRegex:
+    regex: ^(?!/\.well-known/acme-challenge).*$
+    replacement: https://ontu-schedule.pavp.pp.ua$0
+    permanent: true
