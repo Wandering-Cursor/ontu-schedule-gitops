@@ -5,7 +5,7 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     cert-manager.io/cluster-issuer: letsencrypt-prod
-        traefik.ingress.kubernetes.io/router.middlewares: api-prod-redirect-except-acme@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: api-prod-redirect-except-acme@kubernetescrd
 
 spec:
   ingressClassName: traefik
