@@ -8,5 +8,6 @@ spec:
     app: ontu-schedule-bot-admin
   ports:
     - protocol: TCP
+      name: http
       port: 8000
-      targetPort: 443
+      targetPort: 80

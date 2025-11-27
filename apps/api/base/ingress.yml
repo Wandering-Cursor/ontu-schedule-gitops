@@ -16,4 +16,4 @@ spec:
               service:
                 name:  ontu-schedule-bot-admin
                 port:
-                  number: 443
+                  name: http
