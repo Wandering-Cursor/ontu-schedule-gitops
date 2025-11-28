@@ -23,12 +23,12 @@ spec:
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: cache
+  name: ontu-schedule-bot-admin
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cache
+      app: ontu-schedule-bot-admin
   template:
     metadata:
       labels:
