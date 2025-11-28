@@ -1,0 +1,20 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ontu-schedule-bot
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: ontu-schedule-bot
+  template:
+    metadata:
+      labels:
+        app: ontu-schedule-bot
+    spec:
+      containers:
+      - name: ontu-schedule-bot
+        imagePullPolicy: Always
+        image: ghcr.io/wandering-cursor/ontu-schedule-bot:latest
