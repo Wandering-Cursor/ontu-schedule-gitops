@@ -9,6 +9,8 @@ spec:
       containers:
       - name: ontu-schedule-bot
         env:
+        - name: API_URL
+          value: "http://ontu-schedule-bot-admin.api-prod.svc.cluster.local:8000/api"
         - name: BOT_TOKEN
           valueFrom:
             secretKeyRef:
