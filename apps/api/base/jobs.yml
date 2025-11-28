@@ -19,7 +19,27 @@ spec:
             - /app/.venv/bin/python
             - /app/ontu_schedule_admin/manage.py
             - migrate
-            - --noinput &&
+            - --noinput
+      restartPolicy: Never
+  backoffLimit: 1
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: collect-static
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  ttlSecondsAfterFinished: 360
+  template:
+    spec:
+      containers:
+        - name: ontu-schedule-bot-admin
+          image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:latest
+          imagePullPolicy: Always
+          command:
             - /app/.venv/bin/python
             - /app/ontu_schedule_admin/manage.py
             - collectstatic
