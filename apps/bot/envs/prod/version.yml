@@ -8,4 +8,4 @@ spec:
     spec:
       containers:
       - name: ontu-schedule-bot
-        image: ghcr.io/wandering-cursor/ontu-schedule-bot:1.1.1-b2
+        image: ghcr.io/wandering-cursor/ontu-schedule-bot:1.1.1
