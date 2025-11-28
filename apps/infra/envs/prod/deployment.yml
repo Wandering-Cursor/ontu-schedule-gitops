@@ -9,17 +9,17 @@ spec:
       containers:
       - name: postgresql
         env:
-        - name: POSTGRES_USER
+        - name: TMP_POSTGRES_USER
           valueFrom:
             secretKeyRef:
               name: postgresql-secret
               key: postgres_user
-        - name: POSTGRES_PASSWORD
+        - name: TMP_POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgresql-secret
               key: postgres_password
-        - name: POSTGRES_DB
+        - name: TMP_POSTGRES_DB
           valueFrom:
             secretKeyRef:
               name: postgresql-secret
