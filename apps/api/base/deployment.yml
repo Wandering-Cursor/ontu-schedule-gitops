@@ -5,6 +5,7 @@ metadata:
   name: ontu-schedule-bot-admin
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: ontu-schedule-bot-admin
@@ -26,6 +27,7 @@ metadata:
   name: cache
 spec:
   replicas: 1
+  revisionHistoryLimit: 1
   selector:
     matchLabels:
       app: cache
