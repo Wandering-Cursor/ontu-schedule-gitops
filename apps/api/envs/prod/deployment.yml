@@ -27,14 +27,3 @@ spec:
             secretKeyRef:
               name: ontu-schedule-bot-admin-secret
               key: app__redis_url
----
-apiVersion: v1
-kind: Deployment
-metadata:
-  name: cache
-spec:
-  template:
-    spec:
-      containers:
-      - name: cache
-        env: {}
