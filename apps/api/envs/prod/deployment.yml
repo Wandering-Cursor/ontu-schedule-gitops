@@ -9,7 +9,7 @@ spec:
       containers:
       - name: ontu-schedule-bot-admin
         env:
-        - name: allowed_hosts
+        - name: app__allowed_hosts
           value: '["ontu-schedule.pavp.pp.ua", "127.0.0.1"]'
 
         - name: app__security_key
