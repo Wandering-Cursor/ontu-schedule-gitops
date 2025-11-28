@@ -9,10 +9,9 @@ spec:
       containers:
       - name: ontu-schedule-bot-admin
         env:
-        - name: ENV
-          value: "prod"
-        - name: GPU_ENABLED
-          value: "1"
+        - name: allowed_hosts
+          value: '["ontu-schedule.pavp.pp.ua", "127.0.0.1"]'
+
         - name: app__security_key
           valueFrom:
             secretKeyRef:
