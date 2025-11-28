@@ -20,13 +20,6 @@ spec:
         image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:latest
         ports:
         - containerPort: 8000
-        volumeMounts:
-        - name: static-files
-          mountPath: /app/static
-      volumes:
-      - name: static-files
-        persistentVolumeClaim:
-          claimName: static-files
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -44,12 +44,5 @@ spec:
             - /app/ontu_schedule_admin/manage.py
             - collectstatic
             - --noinput
-          volumeMounts:
-          - name: static-files
-            mountPath: /app/static
-      volumes:
-      - name: static-files
-        persistentVolumeClaim:
-          claimName: static-files
       restartPolicy: Never
   backoffLimit: 1

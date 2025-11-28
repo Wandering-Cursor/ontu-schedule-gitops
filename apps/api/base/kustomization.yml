@@ -6,4 +6,3 @@ resources:
   - service.yml
   - ingress.yml
   - jobs.yml
-  - pvc.yml
