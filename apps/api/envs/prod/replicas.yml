@@ -4,4 +4,4 @@ kind: Deployment
 metadata:
   name: ontu-schedule-bot-admin
 spec:
-  replicas: 1
+  replicas: 2
