@@ -19,6 +19,10 @@ spec:
             - /app/.venv/bin/python
             - /app/ontu_schedule_admin/manage.py
             - migrate
+            - --noinput &&
+            - /app/.venv/bin/python
+            - /app/ontu_schedule_admin/manage.py
+            - collectstatic
             - --noinput
       restartPolicy: Never
   backoffLimit: 1
