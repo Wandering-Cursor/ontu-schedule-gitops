@@ -10,7 +10,7 @@ spec:
       - name: ontu-schedule-bot-admin
         env:
         - name: app__allowed_hosts
-          value: '["ontu-schedule.pavp.pp.ua", "127.0.0.1", "*.svc.cluster.local"]'
+          value: '["ontu-schedule.pavp.pp.ua", "127.0.0.1", "ontu-schedule-bot-admin.api-prod.svc.cluster.local"]'
 
         - name: app__security_key
           valueFrom:
