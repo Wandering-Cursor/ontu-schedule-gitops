@@ -66,6 +66,5 @@ spec:
             configMapKeyRef:
               name: grafana-config
               key: root-url
-        - name: GF_SERVE_FROM_SUB_PATH
+        - name: GF_SERVER_SERVE_FROM_SUB_PATH
           value: "true"
-        
