@@ -4,7 +4,6 @@ metadata:
   name: grafana-datasources
   labels:
     app: grafana
-  namespace: observability
 data:
   loki-datasource.yaml: |
     apiVersion: 1
