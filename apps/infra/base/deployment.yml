@@ -19,6 +19,9 @@ spec:
         image: postgres:17
         ports:
         - containerPort: 5432
+        volumeMounts:
+        - name: postgresql-pvc
+          mountPath: /var/lib/postgresql/data
       volumes:
       - name: postgresql-pvc
         persistentVolumeClaim:
