@@ -35,6 +35,14 @@ data:
           - source_labels: ["__meta_kubernetes_pod_uid"]
             target_label: "__path__"
             replacement: "/var/log/pods/$1/*/*.log"
+      - job_name: containers-glob-test
+        pipeline_stages:
+          - cri: {}
+        static_configs:
+          - targets: [localhost]
+            labels:
+              job: containers-glob-test
+              __path__: /var/log/containers/*.log
       - job_name: journal
         journal:
           max_age: 12h
