@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - tools.pavp.pp.ua
+      secretName: tools-tls
+  rules:
+    - host: tools.pavp.pp.ua
+      http:
+        paths:
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name:  grafana
+                port:
+                  number: 3000
