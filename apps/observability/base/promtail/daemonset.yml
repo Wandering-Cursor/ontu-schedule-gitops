@@ -23,6 +23,7 @@ spec:
           runAsUser: 0
           runAsGroup: 0
           readOnlyRootFilesystem: true
+          privileged: true
         volumeMounts:
         - name: config
           mountPath: /etc/promtail
