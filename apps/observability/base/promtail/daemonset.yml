@@ -19,6 +19,10 @@ spec:
         image: grafana/promtail:3
         imagePullPolicy: Always
         args: ["-config.file=/etc/promtail/promtail.yaml"]
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+          readOnlyRootFilesystem: true
         volumeMounts:
         - name: config
           mountPath: /etc/promtail
