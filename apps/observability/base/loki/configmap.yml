@@ -11,10 +11,17 @@ data:
     common:
       path_prefix: /var/loki
       replication_factor: 1
+      ring:
+        instance_addr: 0.0.0.0
+        kvstore:
+          store: memberlist
       storage:
         filesystem:
           chunks_directory: /var/loki/chunks
           rules_directory: /var/loki/rules
+    memberlist:
+      abort_if_cluster_join_fails: false
+      join_members: []
     query_range:
       align_queries_with_step: true
     schema_config:
@@ -32,9 +39,6 @@ data:
         local:
           directory: /var/loki/rules
     ingester:
-      lifecycler:
-        ring:
-          kvstore: inmemory
       wal:
         enabled: true
         dir: /var/loki/wal
