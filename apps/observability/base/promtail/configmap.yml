@@ -53,3 +53,11 @@ data:
         relabel_configs:
           - target_label: job
             replacement: systemd-journal
+      - job_name: containers-glob-test
+        pipeline_stages:
+          - cri: {}
+        static_configs:
+          - targets: [localhost]
+            labels:
+              job: containers-glob-test
+              __path__: /var/log/containers/*.log
