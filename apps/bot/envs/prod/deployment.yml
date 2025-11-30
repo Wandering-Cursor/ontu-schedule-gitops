@@ -31,3 +31,5 @@ spec:
             secretKeyRef:
               name: ontu-schedule-bot-secret
               key: DEBUG_CHAT_ID
+        - name: WEBHOOK_URL
+          value: "https://ontu-schedule-bot.pavp.pp.ua/webhook"
