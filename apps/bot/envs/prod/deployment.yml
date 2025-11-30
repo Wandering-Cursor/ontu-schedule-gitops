@@ -33,3 +33,5 @@ spec:
               key: DEBUG_CHAT_ID
         - name: WEBHOOK_URL
           value: "https://ontu-schedule-bot.pavp.pp.ua/"
+        - name: PORT
+          value: "80"
