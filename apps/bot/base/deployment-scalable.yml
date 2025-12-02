@@ -8,11 +8,11 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: ontu-schedule-bot-scalable
+      app: ontu-schedule-bot
   template:
     metadata:
       labels:
-        app: ontu-schedule-bot-scalable
+        app: ontu-schedule-bot
     spec:
       containers:
       - name: ontu-schedule-bot-scalable

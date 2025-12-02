@@ -11,17 +11,3 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: ontu-schedule-bot-scalable
-spec:
-  type: ClusterIP
-  selector:
-    app: ontu-schedule-bot-scalable
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
----

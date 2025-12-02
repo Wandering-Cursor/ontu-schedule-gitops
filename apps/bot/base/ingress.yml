@@ -20,10 +20,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name:  ontu-schedule-bot
-                port:
-                  number: 80
-              service:
-                name:  ontu-schedule-bot-scalable
+                name: ontu-schedule-bot
                 port:
                   number: 80
