@@ -35,6 +35,15 @@ spec:
           value: "https://ontu-schedule-bot.pavp.pp.ua/"
         - name: PORT
           value: "80"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ontu-schedule-bot-scalable
+spec:
+  template:
+    spec:
+      containers:
       - name: ontu-schedule-bot-scalable
         env:
         - name: API_URL

@@ -9,5 +9,14 @@ spec:
       containers:
       - name: ontu-schedule-bot
         image: ghcr.io/wandering-cursor/ontu-schedule-bot:1.2.3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ontu-schedule-bot-scalable
+spec:
+  template:
+    spec:
+      containers:
       - name: ontu-schedule-bot-scalable
         image: ghcr.io/wandering-cursor/ontu-schedule-bot:1.2.3

@@ -2,22 +2,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ontu-schedule-bot
+  name: ontu-schedule-bot-scalable
 spec:
   replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: ontu-schedule-bot
+      app: ontu-schedule-bot-scalable
   template:
     metadata:
       labels:
-        app: ontu-schedule-bot
+        app: ontu-schedule-bot-scalable
     spec:
       containers:
-      - name: ontu-schedule-bot
+      - name: ontu-schedule-bot-scalable
         imagePullPolicy: Always
         image: ghcr.io/wandering-cursor/ontu-schedule-bot:latest
         env:
+        - name: RUN_PERIODIC_JOBS
+          value: "False"
         - name: PORT
           value: "80"
