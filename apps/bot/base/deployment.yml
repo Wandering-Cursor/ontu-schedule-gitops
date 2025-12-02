@@ -18,3 +18,9 @@ spec:
       - name: ontu-schedule-bot
         imagePullPolicy: Always
         image: ghcr.io/wandering-cursor/ontu-schedule-bot:latest
+      - name: ontu-schedule-bot-scalable
+        imagePullPolicy: Always
+        image: ghcr.io/wandering-cursor/ontu-schedule-bot:latest
+        env:
+        - name: RUN_PERIODIC_JOBS
+          value: "False"
