@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: ontu-schedule-bot-admin
-        image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:1.1.6
+        image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:1.1.7
 ---
 apiVersion: batch/v1
 kind: Job
@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: ontu-schedule-bot-admin
-          image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:1.1.6
+          image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:1.1.7
 ---
 apiVersion: batch/v1
 kind: Job
@@ -30,4 +30,4 @@ spec:
     spec:
       containers:
         - name: ontu-schedule-bot-admin
-          image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:1.1.6
+          image: ghcr.io/wandering-cursor/ontu-schedule-bot-admin:1.1.7
