@@ -29,22 +29,22 @@ data:
             target_label: "pod"
           - source_labels: ["__meta_kubernetes_pod_container_name"]
             target_label: "container"
-          # Extract container ID (docker/containerd) and store in "container_id" label
+          # Use pod UID path first (works for containerd and docker via symlinks)
           - action: replace
-            source_labels: ["__meta_kubernetes_pod_container_id"]
-            regex: .+://([a-f0-9]+)
-            target_label: container_id
-          - action: replace
-            source_labels: ["__meta_kubernetes_pod_name","__meta_kubernetes_namespace","__meta_kubernetes_pod_container_name","container_id"]
-            target_label: "__path__"
-            replacement: "/var/log/containers/$1_$2_$3-$4.log"
-          # Fallback for containerd logs under /var/log/pods (only when container runtime is containerd)
-          - action: replace
-            source_labels: ["__meta_kubernetes_pod_uid","__meta_kubernetes_pod_container_id"]
-            separator: ";"
-            regex: (.+);containerd://.*
+            source_labels: ["__meta_kubernetes_pod_uid"]
             target_label: "__path__"
             replacement: "/var/log/pods/$1/*/*.log"
+          # For docker runtime, override to containers path when detected
+          - action: replace
+            source_labels: ["__meta_kubernetes_pod_name","__meta_kubernetes_namespace","__meta_kubernetes_pod_container_name","__meta_kubernetes_pod_container_id"]
+            separator: ";"
+            regex: (.+);(.+);(.+);docker://([a-f0-9]+)
+            target_label: "__path__"
+            replacement: "/var/log/containers/$1_$2_$3-$4.log"
+          # Only keep targets that point to actual pod or container log files
+          - action: keep
+            source_labels: ["__path__"]
+            regex: /var/log/(pods|containers)/.*\.log
       - job_name: journal
         journal:
           max_age: 12h
@@ -58,21 +58,29 @@ data:
         kubernetes_sd_configs:
           - role: pod
         relabel_configs:
-          # Extract labels from the log file path: /var/log/containers/<pod>_<namespace>_<job>-<random>.log
+          # Basic labels from Kubernetes meta
           - source_labels: ["__meta_kubernetes_namespace"]
             target_label: namespace
           - source_labels: ["__meta_kubernetes_pod_name"]
             target_label: pod
           - source_labels: ["__meta_kubernetes_pod_container_name"]
             target_label: container
+          # Default to pod UID path which exists on most nodes
           - action: replace
-            source_labels: ["__meta_kubernetes_pod_container_id"]
-            regex: .+://([a-f0-9]+)
-            target_label: container_id
+            source_labels: ["__meta_kubernetes_pod_uid"]
+            target_label: "__path__"
+            replacement: "/var/log/pods/$1/*/*.log"
+          # Override to containers path if docker runtime is detected
           - action: replace
-            source_labels: ["__meta_kubernetes_pod_name","__meta_kubernetes_namespace","__meta_kubernetes_pod_container_name","container_id"]
+            source_labels: ["__meta_kubernetes_pod_name","__meta_kubernetes_namespace","__meta_kubernetes_pod_container_name","__meta_kubernetes_pod_container_id"]
+            separator: ";"
+            regex: (.+);(.+);(.+);docker://([a-f0-9]+)
             target_label: "__path__"
             replacement: "/var/log/containers/$1_$2_$3-$4.log"
+          # Keep only valid pod/container log file paths
+          - action: keep
+            source_labels: ["__path__"]
+            regex: /var/log/(pods|containers)/.*\.log
           # Fallback for containerd logs under /var/log/pods (only when container runtime is containerd)
           - action: replace
             source_labels: ["__meta_kubernetes_pod_uid","__meta_kubernetes_pod_container_id"]
