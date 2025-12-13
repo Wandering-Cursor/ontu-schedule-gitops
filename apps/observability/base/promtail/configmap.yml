@@ -14,18 +14,6 @@ data:
     positions:
       filename: /run/promtail/positions.yaml
     scrape_configs:
-      - job_name: filesystem-probe
-        pipeline_stages:
-          - cri: {}
-        static_configs:
-          - targets: [localhost]
-            labels:
-              job: filesystem-probe
-              __path__: /var/log/pods/*/*/*.log
-          - targets: [localhost]
-            labels:
-              job: filesystem-probe
-              __path__: /var/log/containers/*.log
       - job_name: kubernetes-pods
         pipeline_stages:
           - cri: {}
@@ -56,6 +44,10 @@ data:
           - action: keep
             source_labels: ["__path__"]
             regex: /var/log/(pods|containers)/.*\.log
+          # Set a stable job label for queries
+          - action: replace
+            target_label: job
+            replacement: kubernetes-pods
       - job_name: journal
         journal:
           max_age: 12h
@@ -99,3 +91,7 @@ data:
             regex: (.+);containerd://.*
             target_label: "__path__"
             replacement: "/var/log/pods/$1/*/*.log"
+          # Set a stable job label for queries
+          - action: replace
+            target_label: job
+            replacement: containers-glob-test
