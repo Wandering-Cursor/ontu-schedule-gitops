@@ -4,6 +4,7 @@ metadata:
   name: promtail
   labels:
     app: promtail
+  namespace: observability-prod
 spec:
   selector:
     matchLabels:
