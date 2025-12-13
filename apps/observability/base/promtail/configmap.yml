@@ -61,6 +61,8 @@ data:
       static_configs:
         - labels:
             __path__: /var/log/containers/*.log
+            job: containers
+            service_name: containers
       pipeline_stages:
         - cri: {}
       relabel_configs:
