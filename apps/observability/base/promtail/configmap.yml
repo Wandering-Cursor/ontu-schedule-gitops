@@ -80,11 +80,6 @@ data:
       - job_name: containers-glob-test
         pipeline_stages:
           - cri: {}
-        static_configs:
-          - targets: [localhost]
-            labels:
-              job: containers-glob-test
-              __path__: /var/log/containers/*.log
         relabel_configs:
           # Extract labels from the log file path: /var/log/containers/<pod>_<namespace>_<job>-<random>.log
           - action: replace
