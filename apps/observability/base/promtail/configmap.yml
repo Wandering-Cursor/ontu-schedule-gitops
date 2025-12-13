@@ -65,32 +65,13 @@ data:
             service_name: containers
       pipeline_stages:
         - cri: {}
-      relabel_configs:
-        # Derive labels from container log filename using groups:
-        # /var/log/containers/(pod)_(namespace)_(job)-(random .log)
-        - action: replace
-          source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
-          target_label: pod
-          replacement: ${1}
-        - action: replace
-          source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
-          target_label: namespace
-          replacement: ${2}
-        - action: replace
-          source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
-          target_label: container
-          replacement: ${3}
-        - action: replace
-          source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
-          target_label: job
-          replacement: ${2}/${1}
-        # Optional: if you need a "service_name" label, mirror container
-        - action: replace
-          source_labels: [container]
-          regex: (.*)
-          target_label: service_name
-          replacement: ${1}
+        - regex:
+            expression: /var/log/containers/(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-[^/]+\.log
+            source: __path__
+        - labels:
+            values:
+              pod: "{{ .pod }}"
+              namespace: "{{ .namespace }}"
+              container: "{{ .container }}"
+              job: "{{ .namespace }}/{{ .pod }}"
+              service_name: "{{ .container }}"
