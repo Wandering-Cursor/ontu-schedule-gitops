@@ -85,7 +85,8 @@ data:
           source_labels: [__path__]
           regex: .*/(.*)_(.*)_(.*)-(.*\.log)
           target_label: job
-          replacement: ${3}
+          replacement: ${2}/${1}
+        # Optional: if you need a "service_name" label, mirror container
         - action: replace
           source_labels: [container]
           regex: (.*)
