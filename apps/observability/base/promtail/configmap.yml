@@ -80,8 +80,24 @@ data:
       - job_name: containers-glob-test
         pipeline_stages:
           - cri: {}
+        kubernetes_sd_configs:
+          - role: pod
         relabel_configs:
           # Extract labels from the log file path: /var/log/containers/<pod>_<namespace>_<job>-<random>.log
+          - source_labels: ["__meta_kubernetes_namespace"]
+            target_label: namespace
+          - source_labels: ["__meta_kubernetes_pod_name"]
+            target_label: pod
+          - source_labels: ["__meta_kubernetes_pod_container_name"]
+            target_label: container
+          - action: replace
+            source_labels: ["__meta_kubernetes_pod_container_id"]
+            regex: .+://([a-f0-9]+)
+            target_label: container_id
+          - action: replace
+            source_labels: ["__meta_kubernetes_pod_name","__meta_kubernetes_namespace","__meta_kubernetes_pod_container_name","container_id"]
+            target_label: "__path__"
+            replacement: "/var/log/containers/$1_$2_$3-$4.log"
           - action: replace
             source_labels: ["__path__"]
             regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
