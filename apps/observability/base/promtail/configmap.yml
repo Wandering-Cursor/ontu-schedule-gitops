@@ -64,29 +64,30 @@ data:
       pipeline_stages:
         - cri: {}
       relabel_configs:
-        # Derive labels from container log filename: pod_namespace_container-<id>.log
+        # Derive labels from container log filename using groups:
+        # /var/log/containers/(pod)_(namespace)_(job)-(random .log)
         - action: replace
           source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
+          regex: .*/(.*)_(.*)_(.*)-(.*\.log)
           target_label: pod
           replacement: ${1}
         - action: replace
           source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
+          regex: .*/(.*)_(.*)_(.*)-(.*\.log)
           target_label: namespace
           replacement: ${2}
         - action: replace
           source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
+          regex: .*/(.*)_(.*)_(.*)-(.*\.log)
           target_label: container
           replacement: ${3}
         - action: replace
           source_labels: [__path__]
-          regex: .*
+          regex: .*/(.*)_(.*)_(.*)-(.*\.log)
           target_label: job
-          replacement: containers
-        - action: replace
-          source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-[^/]+\.log
-          target_label: service_name
           replacement: ${3}
+        - action: replace
+          source_labels: [container]
+          regex: (.*)
+          target_label: service_name
+          replacement: ${1}
