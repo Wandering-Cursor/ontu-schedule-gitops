@@ -58,27 +58,11 @@ data:
       pipeline_stages:
         - cri: {}
     - job_name: file-logs
-      file_sd_configs:
-        - files:
-            - /var/log/containers/*.log
-          refresh_interval: 10s
+      static_configs:
+        - labels:
+            __path__: /var/log/containers/*.log
       pipeline_stages:
         - cri: {}
-      relabel_configs:
-        - source_labels: [__address__]
-          target_label: __path__
-        - source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-.*\.log
-          target_label: container
-          replacement: ${3}
-        - source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-.*\.log
-          target_label: namespace
-          replacement: ${2}
-        - source_labels: [__path__]
-          regex: .*/([^_]+)_([^_]+)_([^_]+)-.*\.log
-          target_label: pod
-          replacement: ${1}
       relabel_configs:
         - source_labels: [__meta_kubernetes_pod_node_name]
           target_label: __host__
