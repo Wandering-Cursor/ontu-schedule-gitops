@@ -42,35 +42,11 @@ data:
           # Regex equivalent: 
           #   /var/log/containers/(?P<pod>.*)_(?P<namespace>.*)_(?P<job>.*)-(?P<random>.*\.log)
           # Relabel rules below use numbered capture groups to set labels.
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: pod
-            replacement: $1
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: namespace
-            replacement: $2
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: job
-            replacement: $3
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: random
-            replacement: $4
           # Fallback for containerd logs under /var/log/pods
           - action: replace
             source_labels: ["__meta_kubernetes_pod_uid"]
             target_label: "__path__"
             replacement: "/var/log/pods/$1/*/*.log"
-          # Set a stable job label for queries
-          - action: replace
-            target_label: job
-            replacement: kubernetes-pods
       - job_name: journal
         journal:
           max_age: 12h
@@ -99,23 +75,3 @@ data:
             source_labels: ["__meta_kubernetes_pod_name","__meta_kubernetes_namespace","__meta_kubernetes_pod_container_name","container_id"]
             target_label: "__path__"
             replacement: "/var/log/containers/$1_$2_$3-$4.log"
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: pod
-            replacement: $1
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: namespace
-            replacement: $2
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: job
-            replacement: $3
-          - action: replace
-            source_labels: ["__path__"]
-            regex: /var/log/containers/(.*)_(.*)_(.*)-(.*\.log)
-            target_label: random
-            replacement: $4
