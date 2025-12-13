@@ -52,3 +52,36 @@ data:
             - __meta_kubernetes_pod_uid
             - __meta_kubernetes_pod_container_name
           target_label: __path__
+    - job_name: container-logs
+      kubernetes_sd_configs:
+        - role: pod
+      pipeline_stages:
+        - docker: {}
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          target_label: __host__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - action: replace
+          replacement: $1
+          separator: /
+          source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_name]
+          target_label: job
+        - action: replace
+          source_labels: [__meta_kubernetes_namespace]
+          target_label: namespace
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_name]
+          target_label: pod
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_container_name]
+          target_label: container
+        - action: replace
+          source_labels: [__meta_kubernetes_pod_uid, __meta_kubernetes_pod_container_name]
+          separator: _
+          regex: (.*)
+          replacement: ${1}
+          target_label: filename
+        - source_labels: [filename]
+          target_label: __path__
+          replacement: /var/log/containers/${1}.log
