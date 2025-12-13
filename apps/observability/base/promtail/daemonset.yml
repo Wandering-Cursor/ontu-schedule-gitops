@@ -31,8 +31,11 @@ spec:
           mountPath: /run/promtail
         - name: varlog
           mountPath: /var/log
+        - name: pods
+          mountPath: /var/log/pods
+          readOnly: true
         - name: containers
-          mountPath: /var/lib/docker/containers
+          mountPath: /var/log/containers
           readOnly: true
       volumes:
       - name: config
@@ -43,6 +46,9 @@ spec:
       - name: varlog
         hostPath:
           path: /var/log
+      - name: pods
+        hostPath:
+          path: /var/log/pods
       - name: containers
         hostPath:
-          path: /var/lib/docker/containers
+          path: /var/log/containers
