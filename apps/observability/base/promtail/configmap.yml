@@ -10,8 +10,6 @@ data:
       http_listen_port: 9080
       grpc_listen_port: 0
       log_level: debug
-    fs_config:
-      follow_symlinks: true
     clients:
       - url: http://loki:3100/loki/api/v1/push
     positions:
