@@ -41,9 +41,7 @@ data:
             target_label: "__path__"
             replacement: "/var/log/containers/$1_$2_$3-$4.log"
           # Only keep targets that point to actual pod or container log files
-          - action: keep
-            source_labels: ["__path__"]
-            regex: /var/log/(pods|containers)/.*\.log
+          # (Removed keep filter to avoid accidentally dropping valid targets)
           # Set a stable job label for queries
           - action: replace
             target_label: job
@@ -81,9 +79,7 @@ data:
             target_label: "__path__"
             replacement: "/var/log/containers/$1_$2_$3-$4.log"
           # Keep only valid pod/container log file paths
-          - action: keep
-            source_labels: ["__path__"]
-            regex: /var/log/(pods|containers)/.*\.log
+          # (Removed keep filter to avoid accidentally dropping valid targets)
           # Fallback for containerd logs under /var/log/pods (only when container runtime is containerd)
           - action: replace
             source_labels: ["__meta_kubernetes_pod_uid","__meta_kubernetes_pod_container_id"]
