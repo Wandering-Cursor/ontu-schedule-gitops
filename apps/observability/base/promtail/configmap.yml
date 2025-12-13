@@ -5,7 +5,8 @@ metadata:
   labels:
     app: promtail
 data:
-  promtail.yaml: server:
+  promtail.yaml: |
+    server:
       http_listen_port: 9080
       grpc_listen_port: 0
     clients:
