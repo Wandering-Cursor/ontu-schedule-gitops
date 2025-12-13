@@ -69,9 +69,8 @@ data:
             expression: /var/log/containers/(?P<pod>[^_]+)_(?P<namespace>[^_]+)_(?P<container>[^_]+)-[^/]+\.log
             source: __path__
         - labels:
-            values:
-              pod: "{{ .pod }}"
-              namespace: "{{ .namespace }}"
-              container: "{{ .container }}"
-              job: "{{ .namespace }}/{{ .pod }}"
-              service_name: "{{ .container }}"
+            pod: "{{ .pod }}"
+            namespace: "{{ .namespace }}"
+            container: "{{ .container }}"
+            job: "{{ .namespace }}/{{ .pod }}"
+            service_name: "{{ .container }}"
