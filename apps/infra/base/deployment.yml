@@ -33,4 +33,4 @@ spec:
             claimName: postgresql-pvc
       - name: test-pvc
         persistentVolumeClaim:
-            claimName: test-pvc
+            claimName: renamed-pvc
