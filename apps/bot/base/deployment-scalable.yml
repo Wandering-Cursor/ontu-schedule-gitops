@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: ontu-schedule-bot-scalable
 spec:
-  replicas: 0
+  replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
