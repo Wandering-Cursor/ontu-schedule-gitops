@@ -27,8 +27,8 @@ spec:
                 secretKeyRef:
                   name: ontu-schedule-bot-admin-secret
                   key: app__redis_url
-            - name: app__proxy
-              valueFrom:
-                secretKeyRef:
-                  name: ontu-schedule-bot-admin-secret
-                  key: app__proxy
+            # - name: app__proxy
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: ontu-schedule-bot-admin-secret
+            #       key: app__proxy
